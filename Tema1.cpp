@@ -15,6 +15,15 @@ using namespace m1;
  */
 
 
+// =========== Coliziuni ==
+//jucator - inamic(5p) V
+//jucator - perete harta(5p) V
+//jucator - obstacol(2.5p) V
+//proiectil - inamic(5p) V
+//proiectil - perete harta(2.5p) V
+//proiectil - obstacol(2.5p) V
+//inamic - perete harta(2.5p) V
+
 Tema1::Tema1()
 {
 }
@@ -156,44 +165,107 @@ void Tema1::Init()
     camera->SetRotation(glm::vec3(0, 0, 0));
     camera->Update();
     GetCameraInput()->SetActive(false);
-    //playerX = 0;
-    //playerY = 0;
+ 
     Radius = 4;
-    alfa = 3 * M_PI / 2;
-    leftLegX = Radius * cos(5 * M_PI / 4);
-    leftLegY = Radius * sin(5 * M_PI / 4);
-    rightLegX = Radius * cos(7 * M_PI / 4);
-    rightLegY = Radius * sin(7 * M_PI / 4);
+    leftLeg.x = Radius * cos(5 * M_PI / 4);
+    leftLeg.y = Radius * sin(5 * M_PI / 4);
+    rightLeg.x = Radius * cos(7 * M_PI / 4);
+    rightLeg.y = Radius * sin(7 * M_PI / 4);
     cursorAngle = 0;
     showProiectil = 0;
-    nrProiectile = 0;
     time = Engine::GetElapsedTime();
-    player = Player(0.f, 0.f);;
+    enemyTime = Engine::GetElapsedTime();
+    player = Coordonate(0.f, 0.f);
+    score = 0;
+    leftOrightSide = 0;
+    glm::vec3 wallColor = glm::vec3(84.f/255.f, 89.f/255.f, 83.f/255.f);
 
     
+    Enemy firstEnemy = Tema1::Enemy(player.x + 25, player.y - 15, 15, M_PI / 4);
+    enemies.push_back(firstEnemy);
+    color = glm::vec3(19.f/255.f, 109.f/255.f, 21.f/255.f);
+
+    leftWall = Figure(-98.f, -98.f, 396.0f, 2.0f);
+    rightWall = Figure(196.f, -98.f, 396.0f, 2.0f);
+    topWall = Figure(-98.f, 296.f, 2.0f, 296.0f);
+    bottomWall = Figure(-98.f, -98.f, 2.0f, 296.0f);
+
+    walls.push_back(leftWall);
+    walls.push_back(rightWall);
+    walls.push_back(topWall);
+    walls.push_back(bottomWall);
+   
+   Figure obstacle1C = Figure(5.f, 5.f, 10.0f, 5.0f);
+   Figure obstacle2C = Figure(-40.f, 0.f, 19.0f, 3.0f);
+   Figure obstacle3C = Figure(-37.f, 14.f, 5.0f, 10.0f);
+   Figure obstacle4C = Figure(-30.f, -25.f, 15.0f, 5.0f);
+   Figure obstacle5C = Figure(-30.f, -30.f, 5.0f, 20.0f);
+   Figure obstacle6C = Figure(50.f, -40.f, 20.0f, 20.0f);
+    
+    obstacles.push_back(obstacle1C);
+    obstacles.push_back(obstacle2C);
+    obstacles.push_back(obstacle3C);
+    obstacles.push_back(obstacle4C);
+    obstacles.push_back(obstacle5C);
+    obstacles.push_back(obstacle6C);
+
+    healthBar = Figure(50,40,8,35);
+    health = 1;
+   
+
 
     //Creez mapa
-    Mesh* map = Tema1::CreateRectangle("map", glm::vec3(-50, -50, 0),400.0f,300.0f, glm::vec3(128.0/255.0, 96.0/255.0, 67.0/255.0),true);
+    Mesh* map = Tema1::CreateRectangle("map", glm::vec3(-100, -100, 0),400.0f,300.0f, glm::vec3(128.0/255.0, 96.0/255.0, 67.0/255.0),true);
     AddMeshToList(map);
 
-    Mesh* obstacle1 = Tema1::CreateRectangle("obstacle1", glm::vec3(5, 5, 1), 10.0f, 5.0f, glm::vec3(235.0/255.0, 70.0/255.0, 0.0), true);
+    Mesh* healthBarVolMesh = Tema1::CreateRectangle("healthBarVol", glm::vec3(0, 0, 1), healthBar.height, healthBar.width, glm::vec3(1,0,0), true);
+    AddMeshToList(healthBarVolMesh);
+
+    Mesh* healthBarMesh = Tema1::CreateRectangle("healthBar", glm::vec3(0, 0, 1), healthBar.height, healthBar.width, glm::vec3(1, 0, 0), false);
+    AddMeshToList(healthBarMesh);
+
+    //============================================= WALLS ==========================================================
+
+    Mesh* leftWallMesh = Tema1::CreateRectangle("leftWall", glm::vec3(leftWall.x,leftWall.y,1) , leftWall.height, leftWall.width, wallColor, true);
+    AddMeshToList(leftWallMesh);
+
+    Mesh* bottomWallMesh = Tema1::CreateRectangle("bottomWall", glm::vec3(bottomWall.x, bottomWall.y, 1), bottomWall.height, bottomWall.width, wallColor, true);
+    AddMeshToList(bottomWallMesh);
+
+    Mesh* rightWallMesh = Tema1::CreateRectangle("rightWall", glm::vec3(rightWall.x, rightWall.y, 1), rightWall.height, rightWall.width, wallColor, true);
+    AddMeshToList(rightWallMesh);
+
+    Mesh* topWallMesh = Tema1::CreateRectangle("topWall", glm::vec3(topWall.x, topWall.y, 1), topWall.height, topWall.width, wallColor, true);
+    AddMeshToList(topWallMesh);
+
+    // ============================================= ENEMY -============================================
+    Mesh* enemyMesh = Tema1::CreateRectangle("enemy", glm::vec3( 0, 0, 1.2), ENEMY_LEN, ENEMY_LEN, glm::vec3(150.f/255.f, 58.f/255.f, 39.f/255.f), true);
+    AddMeshToList(enemyMesh);
+
+    Mesh* enemyLeft = Tema1::CreateRectangle("enemyLeft", glm::vec3(0 - ENEMY_LEN/8, 0 + ENEMY_LEN - ENEMY_LEN/8, 1.4), ENEMY_LEN/4, ENEMY_LEN/4, glm::vec3(77.f/255.f, 36.f/255.f, 28.f/255.f), true);
+    AddMeshToList(enemyLeft);
+
+    Mesh* enemyRight = Tema1::CreateRectangle("enemyRight", glm::vec3(0 + ENEMY_LEN - ENEMY_LEN/8, 0 + ENEMY_LEN - ENEMY_LEN / 8, 1.4), ENEMY_LEN/4, ENEMY_LEN/4, glm::vec3(77.f/255.f, 36.f/255.f, 28.f/255.f), true);
+    AddMeshToList(enemyRight);
+    // ============================================= OBSTACOLE ============================================
+    Mesh* obstacle1 = Tema1::CreateRectangle("obstacle1", glm::vec3(obstacle1C.x, obstacle1C.y, 1), obstacle1C.height, obstacle1C.width, color, true);
     AddMeshToList(obstacle1);
 
-    Mesh* obstacle2 = Tema1::CreateRectangle("obstacle2", glm::vec3(-40, 0, 1), 19.0f, 3.0f, glm::vec3(235.0 / 255.0, 70.0 / 255.0, 0.0), true);
+    Mesh* obstacle2 = Tema1::CreateRectangle("obstacle2", glm::vec3(obstacle2C.x, obstacle2C.y, 1), obstacle2C.height, obstacle2C.width, color, true);
     AddMeshToList(obstacle2);
 
-    Mesh* obstacle3 = Tema1::CreateRectangle("obstacle3", glm::vec3(-37, 14, 1), 5.0f, 10.0f, glm::vec3(235.0 / 255.0, 70.0 / 255.0, 0.0), true);
+    Mesh* obstacle3 = Tema1::CreateRectangle("obstacle3", glm::vec3(obstacle3C.x, obstacle3C.y, 1), obstacle3C.height, obstacle3C.width,color , true);
     AddMeshToList(obstacle3);
 
-    Mesh* obstacle4= Tema1::CreateRectangle("obstacle4", glm::vec3(-30, -30, 1), 15.0f, 5.0f, glm::vec3(235.0 / 255.0, 70.0 / 255.0, 0.0), true);
+    Mesh* obstacle4= Tema1::CreateRectangle("obstacle4", glm::vec3(obstacle4C.x, obstacle4C.y, 1), obstacle4C.height, obstacle4C.width, color, true);
     AddMeshToList(obstacle4);
 
-    Mesh* obstacle5 = Tema1::CreateRectangle("obstacle5", glm::vec3(-25, -30, 1), 5.0f, 20.0f, glm::vec3(235.0 / 255.0, 70.0 / 255.0, 0.0), true);
+    Mesh* obstacle5 = Tema1::CreateRectangle("obstacle5", glm::vec3(obstacle5C.x, obstacle5C.y, 1), obstacle5C.height, obstacle5C.width, color, true);
     AddMeshToList(obstacle5);
 
-    Mesh* obstacle6 = Tema1::CreateRectangle("obstacle6", glm::vec3(50, -40, 1), 20.0f, 20.0f, glm::vec3(235.0 / 255.0, 70.0 / 255.0, 0.0), true);
+    Mesh* obstacle6 = Tema1::CreateRectangle("obstacle6", glm::vec3(obstacle6C.x, obstacle6C.y, 1), obstacle6C.height, obstacle6C.width,color , true);
     AddMeshToList(obstacle6);
-
+    // ================================= PROIECTIL====================================================
     Mesh* proiectil = Tema1::CreateRectangle("proiectil", glm::vec3(player.x - PROIECTIL_LEN/2, player.y - PROIECTIL_LEN/2, 1), PROIECTIL_LEN, PROIECTIL_LEN, glm::vec3(0, 0 , 0), true);
     AddMeshToList(proiectil);
 
@@ -214,31 +286,12 @@ void Tema1::Init()
   
 }
 
-//bool CheckCollision(float playerX,float playerY) // AABB - Circle collision
-//{
-//    // get center point circle first 
-//    glm::vec2 center(one.Position + one.Radius);
-//    // calculate AABB info (center, half-extents)
-//    glm::vec2 aabb_half_extents(two.Size.x / 2.0f, two.Size.y / 2.0f);
-//    glm::vec2 aabb_center(
-//        two.Position.x + aabb_half_extents.x,
-//        two.Position.y + aabb_half_extents.y
-//    );
-//    // get difference vector between both centers
-//    glm::vec2 difference = center - aabb_center;
-//    glm::vec2 clamped = glm::clamp(difference, -aabb_half_extents, aabb_half_extents);
-//    // add clamped value to AABB_center and we get the value of box closest to circle
-//    glm::vec2 closest = aabb_center + clamped;
-//    // retrieve vector between center circle and closest point AABB and check if length <= radius
-//    difference = closest - center;
-//    return glm::length(difference) < one.Radius;
-//}
-
-
 void Tema1::DrawBullets(glm::mat3 visMatrix, float deltaTimeSeconds) {
     if (showProiectil) {
         //modelMatrix = visMatrix * transform2D::Translate(playerX, playerY);
         for (int i = 0; i < proiectile.size(); i++) {
+
+            bool checkDist = true;
 
             proiectile[i].x += PROIECTIL_SPEED * cos(proiectile[i].angle) * deltaTimeSeconds;
             proiectile[i].y += PROIECTIL_SPEED * sin(proiectile[i].angle) * deltaTimeSeconds;
@@ -246,9 +299,41 @@ void Tema1::DrawBullets(glm::mat3 visMatrix, float deltaTimeSeconds) {
             modelMatrix = visMatrix * transform2D::Translate(proiectile[i].x, proiectile[i].y);
             modelMatrix *= transform2D::Rotate(proiectile[i].angle);
             RenderMesh2D(meshes["proiectil"], shaders["VertexColor"], modelMatrix);
+            Figure fig = Figure(proiectile[i].x, proiectile[i].y, PROIECTIL_LEN, PROIECTIL_LEN);
 
-            if (proiectile[i].x - proiectile[i].initialX > 30.f || proiectile[i].y - proiectile[i].initialY > 30.f || proiectile[i].x - proiectile[i].initialX < -30.f || proiectile[i].y - proiectile[i].initialY < -30.f) {
-                proiectile.erase(proiectile.begin() + i);
+            for (int j = 0; j < obstacles.size(); j++) {
+                if (intersectRectRect(fig, obstacles[j])) {
+                    proiectile.erase(proiectile.begin() + i);
+                    checkDist = false;
+                    break;
+                    
+                }
+            }
+
+            for (int j = 0; j < enemies.size(); j++) {
+                Figure fig2 = Figure(enemies[j].x, enemies[j].y, ENEMY_LEN, ENEMY_LEN);
+                if (intersectRectRect(fig, fig2)) {
+                    score++;
+                    proiectile.erase(proiectile.begin() + i);
+                    enemies.erase(enemies.begin() + j);
+                    checkDist = false;
+                    break;
+
+                }
+            }
+            for (int j = 0; j < walls.size(); j++) {
+                if (intersectRectRect(fig, walls[j])) {
+                    proiectile.erase(proiectile.begin() + i);
+                    checkDist = false;
+                    break;
+
+                }
+            }
+
+            if (checkDist) {
+                if (proiectile[i].x - proiectile[i].initialX > 50.f || proiectile[i].y - proiectile[i].initialY > 50.f || proiectile[i].x - proiectile[i].initialX < -50.f || proiectile[i].y - proiectile[i].initialY < -50.f) {
+                    proiectile.erase(proiectile.begin() + i);
+                }
             }
 
         }
@@ -256,25 +341,105 @@ void Tema1::DrawBullets(glm::mat3 visMatrix, float deltaTimeSeconds) {
     }
 }
 
+
+bool Tema1::intersectRectRect(Tema1::Figure rect1, Tema1::Figure rect2) { 
+    return (rect1.x <= rect2.x + rect2.width && rect1.x + rect1.width >= rect2.x) &&
+        (rect1.y <= rect2.y + rect2.height && rect1.y + rect1.height >= rect2.y);
+    
+}
+
+
+bool Tema1::intersect(Tema1::Coordonate circle, float radius, Tema1::Figure rect) {
+    // get box closest point to sphere center by clamping
+    float x = max(rect.x, min(circle.x, rect.x + rect.width));
+    float y = max(rect.y, min(circle.y, rect.y + rect.height));
+  
+
+    // this is the same as isPointInsideSphere
+    float distance = sqrt((x - circle.x) * (x - circle.x) +
+        (y - circle.y) * (y - circle.y));
+
+    return distance < radius;
+}
+
+bool Tema1::circleRect(Tema1::Coordonate circle, float radius,Tema1::Figure rect, int key) {
+
+    // temporary variables to set edges for testing
+    float distance = 0;
+    float testX = circle.x;
+    float testY = circle.y;
+    bool coll = false;
+    // which edge is closest?
+    
+    if (circle.x  < rect.x && circle.y - radius < (rect.y + rect.height) && circle.y + radius > rect.y && key == 3)
+    {
+        coll = true;
+        testX = rect.x;
+
+    } // test left edge
+    else if (circle.x > rect.width + rect.x && circle.y - radius < (rect.y + rect.height) && circle.y + radius > rect.y && key == 4) {
+        coll = true;
+        testX = rect.x + rect.width; 
+    }   // right edge
+    if (circle.y < rect.y && (circle.x + radius) > rect.x && (circle.x - radius) < (rect.x + rect.width) && key == 1) {
+        testY = rect.y;
+        coll = true;
+    }   // top edge
+    else if (circle.y > rect.y + rect.height && (circle.x + radius) > rect.x && (circle.x - radius) < (rect.x + rect.width) && key == 2) {
+        testY = rect.y + rect.height;
+        coll = true;
+    }  // bottom edge
+
+    // get distance from closest edges
+    if (coll) {
+        float distX = circle.x - testX;
+        float distY = circle.y - testY;
+        distance = (float)sqrt(pow(distX, 2) + pow(distY, 2));
+
+        if (distance <= radius) {
+            return true;
+        }
+        
+    }
+    return false;
+   // 
+    // if the distance is less than the radius, collision!
+    
+}
+
 void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
 {
-
+    
     
     modelMatrix = visMatrix ;
     RenderMesh2D(meshes["map"], shaders["VertexColor"], modelMatrix);
 
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["leftWall"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["bottomWall"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["topWall"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["rightWall"], shaders["VertexColor"], modelMatrix);
+
+    // ===================== PLAYER ========================
 
     modelMatrix = visMatrix * transform2D::Translate(player.x ,player.y);
     RenderMesh2D(meshes["circle"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = visMatrix * transform2D::Translate(player.x, player.y);
-    modelMatrix *= transform2D::Translate(leftLegX, leftLegY);
+    modelMatrix *= transform2D::Translate(leftLeg.x, leftLeg.y);
     RenderMesh2D(meshes["legLeft"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = visMatrix * transform2D::Translate(player.x, player.y);
-    modelMatrix *= transform2D::Translate(rightLegX, rightLegY);
+    modelMatrix *= transform2D::Translate(rightLeg.x, rightLeg.y);
     RenderMesh2D(meshes["legRight"], shaders["VertexColor"], modelMatrix);
 
+    // ============================ OBSTACOLE ============================
     modelMatrix = visMatrix;
     RenderMesh2D(meshes["obstacle1"], shaders["VertexColor"], modelMatrix);
 
@@ -293,10 +458,101 @@ void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
 
     modelMatrix = visMatrix;
     RenderMesh2D(meshes["obstacle6"], shaders["VertexColor"], modelMatrix);
+
+    //===================================== ENEMY =================================
     
-    
+    for (int i = 0; i < enemies.size(); i++) {
+        modelMatrix = visMatrix;
+        
+        enemies[i].angle = atan2(player.y - enemies[i].y, player.x - enemies[i].x);
+        
+        enemies[i].x += enemies[i].speed * deltaTimeSeconds * cos(enemies[i].angle);
+
+       
+       
+            enemies[i].y += enemies[i].speed * deltaTimeSeconds * sin(enemies[i].angle);
+
+        
+
+        
+
+        // rotatia
+        /*modelMatrix *= transform2D::Translate(-enemies[i].x, -enemies[i].y);
+        modelMatrix *= transform2D::Rotate(enemies[i].angle);
+        modelMatrix *= transform2D::Translate(enemies[i].x, enemies[i].y);*/
+
+        //modelMatrix *= transform2D::Rotate(enemies[i].angle);
+        
+       /* modelMatrix *= transform2D::Translate(enemies[i].x + ENEMY_LEN / 2, enemies[i].y + ENEMY_LEN / 2);
+        modelMatrix *= transform2D::Rotate(enemies[i].angle);
+        modelMatrix *= transform2D::Translate( -(enemies[i].x + ENEMY_LEN / 2), -(enemies[i].y + ENEMY_LEN / 2));*/
+
+       
+        modelMatrix *= transform2D::Translate(enemies[i].x, enemies[i].y);
+        modelMatrix *= transform2D::Translate( ENEMY_LEN / 2, ENEMY_LEN / 2);
+        modelMatrix *= transform2D::Rotate(enemies[i].angle - M_PI/2 );
+        modelMatrix *= transform2D::Translate( - ENEMY_LEN / 2, - ENEMY_LEN / 2);
+        
+       // modelMatrix *= transform2D::Rotate(enemies[i].angle);
+        RenderMesh2D(meshes["enemy"], shaders["VertexColor"], modelMatrix);
+
+        RenderMesh2D(meshes["enemyLeft"], shaders["VertexColor"], modelMatrix);
+
+        RenderMesh2D(meshes["enemyRight"], shaders["VertexColor"], modelMatrix);
+
+        Figure enemyFig = Tema1::Figure(enemies[i].x, enemies[i].y, ENEMY_LEN, ENEMY_LEN);
+        if (intersect(player, Radius, enemyFig)) {
+            score--;
+            health -= 0.1;
+            enemies.erase(enemies.begin() + i);
+        }
+
+        for (int j = 0; j < walls.size(); j++) {
+            if (intersectRectRect(enemyFig, walls[j])) {
+                enemies.erase(enemies.begin() + i);
+                break;
+
+            }
+        }
+    }
 
 
+
+    //=========================== SPAWNARE ENEMY LA 3 SEC=======================================
+    if (Engine::GetElapsedTime() - enemyTime >= 3) 
+    {
+        float x, y;
+        float angle = atan2(viewSpace.height / 2 - player.y, player.x - viewSpace.width / 2);
+        if (leftOrightSide) {
+            x = player.x +  15 + fmod((float(rand())), 30.f);
+            leftOrightSide = 0;
+        }
+        else {
+            x = player.x - 15 - fmod((float(rand())), 30.f);
+            leftOrightSide = 1;
+        }
+
+        if (leftOrightSide) {
+            y = player.y + 15 + fmod((float(rand())), 30.f);
+            leftOrightSide = 0;
+        }
+        else {
+            y = player.y - 15 - fmod((float(rand())), 30.f);
+            leftOrightSide = 1;
+        }
+        Enemy enemy = Tema1::Enemy(x, y, 15.f + fmod((float(rand())), 10.f), angle);
+        enemies.push_back(enemy);
+        enemyTime = Engine::GetElapsedTime();
+    }
+
+    // ================================== HEALTHBAR ==================================
+    modelMatrix = visMatrix;
+    modelMatrix *= transform2D::Translate(healthBar.x, healthBar.y);
+    RenderMesh2D(meshes["healthBar"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix *= transform2D::Scale(health, 1);
+    RenderMesh2D(meshes["healthBarVol"], shaders["VertexColor"], modelMatrix);
+    
 }
 
 void Tema1::SetViewportArea(const ViewportSpace& viewSpace, glm::vec3 colorColor, bool clear)
@@ -391,20 +647,100 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 {
 
     if (window->KeyHold(GLFW_KEY_W)) {
-        player.y += SPEED * deltaTime;
-        logicSpace.y += deltaTime * SPEED;
+        
+        bool ok = true;
+        for (int i = 0; i < obstacles.size(); i++) {
+            if (circleRect(player, Radius, obstacles[i], 1)) {
+                ok = false;
+                break;
+            }
+        }
+
+        for (int i = 0; i < walls.size(); i++) {
+            if (circleRect(player, Radius, walls[i], 1)) {
+                ok = false;
+                break;
+            }
+        }
+
+        if (ok) {
+            player.y += SPEED * deltaTime;
+            logicSpace.y += deltaTime * SPEED;
+            healthBar.y += SPEED * deltaTime;
+        }
     }
     if (window->KeyHold(GLFW_KEY_S)) {
-        player.y -= SPEED * deltaTime;
-        logicSpace.y -= deltaTime * SPEED;
+        ;
+        bool ok = true;
+        for (int i = 0; i < obstacles.size(); i++) {
+            if (circleRect(player, Radius, obstacles[i], 2)) {
+                ok = false;
+                break;
+            }
+        }
+
+        for (int i = 0; i < walls.size(); i++) {
+            if (circleRect(player, Radius, walls[i], 2)) {
+                ok = false;
+                break;
+            }
+        }
+
+        if (ok) {
+            player.y -= SPEED * deltaTime;
+            logicSpace.y -= deltaTime * SPEED;
+            healthBar.y -= SPEED * deltaTime;
+        }
     }
     if (window->KeyHold(GLFW_KEY_D)) {
-        player.x += SPEED * deltaTime;
-        logicSpace.x += deltaTime * SPEED;
+
+        
+        bool ok = true;
+        for (int i = 0; i < obstacles.size(); i++) {
+            if (circleRect(player, Radius, obstacles[i], 3)) {
+                ok = false;
+                break;
+            }
+        }
+
+        for (int i = 0; i < walls.size(); i++) {
+            if (circleRect(player, Radius, walls[i], 3)) {
+                ok = false;
+                break;
+            }
+        }
+
+        if (ok) {
+            player.x += SPEED * deltaTime;
+            logicSpace.x += deltaTime * SPEED;
+            healthBar.x += SPEED * deltaTime;
+        }
+        
     }
     if (window->KeyHold(GLFW_KEY_A)) {
-        player.x -= SPEED * deltaTime;
-        logicSpace.x -= deltaTime * SPEED;
+
+        
+        bool ok = true;
+        for (int i = 0; i < obstacles.size(); i++) {
+            if (circleRect(player, Radius, obstacles[i], 4)) {
+                ok = false;
+                break;
+            }
+        }
+
+        for (int i = 0; i < walls.size(); i++) {
+            if (circleRect(player, Radius, walls[i], 4)) {
+                ok = false;
+                break;
+            }
+        }
+        
+        if (ok) {
+            player.x -= SPEED * deltaTime;
+            logicSpace.x -= deltaTime * SPEED;
+            healthBar.x -= SPEED * deltaTime;
+        }
+
     }
    
 
@@ -426,20 +762,11 @@ void Tema1::OnKeyRelease(int key, int mods)
 void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
     // Add mouse move event
-    /*float b = Radius;
-    float c = sqrt(pow(mouseX, 2) + pow(mouseY, 2));
-    float a = sqrt(pow((Radius * cos(alfa) - mouseX), 2) + pow((Radius * sin(alfa) - mouseY), 2));
-    float cosAlfa = (pow(a, 2) - pow(b, 2) - pow(c, 2)) / (2 * (double)b * c);
-    cusorTranslateX = Radius*cosAlfa;
-    cusorTranslateY = Radius * sqrt(1 - pow(cosAlfa, 2));
-    alfa = acos(cosAlfa);*/
-
-
     cursorAngle = atan2(viewSpace.height/2  - mouseY, mouseX - viewSpace.width/2);
-    leftLegX = Radius * cos(cursorAngle + M_PI/4);
-    leftLegY = Radius * sin(cursorAngle + M_PI/4);
-    rightLegX = Radius * cos(cursorAngle - M_PI/4);
-    rightLegY = Radius * sin(cursorAngle - M_PI/4);
+    leftLeg.x = Radius * cos(cursorAngle + M_PI/4);
+    leftLeg.y = Radius * sin(cursorAngle + M_PI/4);
+    rightLeg.x = Radius * cos(cursorAngle - M_PI/4);
+    rightLeg.y = Radius * sin(cursorAngle - M_PI/4);
 
     
     

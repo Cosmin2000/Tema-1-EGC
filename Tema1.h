@@ -60,17 +60,42 @@ namespace m1
             float height;
         };
 
-        struct Player
+        struct Coordonate
         {
-            Player(): x(0), y(0) {}
-            Player(float x, float y)
+            Coordonate(): x(0), y(0) {}
+            Coordonate(float x, float y)
                 : x(x), y(y) {}
             float x;
             float y;
         };
+
+        struct Figure
+        {
+            Figure() : x(0), y(0), height(0), width(0) {}
+            Figure(float x, float y, float height, float width)
+                : x(x), y(y), height(height), width(width) {}
+            float x;
+            float y;
+            float width;
+            float height;
+        };
+
+        struct Enemy
+        {
+            Enemy() : x(0), y(0), speed(0), angle(0) {}
+            Enemy(float x, float y, float speed, float angle)
+                : x(x), y(y), speed(speed), angle(angle) {}
+            float x;
+            float y;
+            float speed;
+            float angle;
+          
+        };
     private:
         
-       
+        bool Tema1::intersectRectRect(Tema1::Figure rect1, Tema1::Figure rect);
+        bool Tema1::intersect(Tema1::Coordonate circle, float radius, Tema1::Figure rect);
+        bool Tema1::circleRect(Tema1::Coordonate circle, float radius, Tema1::Figure rect, int key);
         void Tema1::CreateCircle(const char* name,int R, int nr_sections,glm::vec3 color, int Zoffset);
         void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds);
         void Tema1::DrawBullets(glm::mat3 visMatrix, float deltaTimeSeconds);
@@ -98,25 +123,26 @@ namespace m1
         LogicSpace logicSpace;
         std::vector<Proiectil> proiectile;
         glm::mat3 modelMatrix, visMatrix;
-        Player  player;
-
+        Coordonate  player;
+        Coordonate  leftLeg;
+        Coordonate  rightLeg;
+        std::vector<Enemy> enemies;
+        std::vector<Figure> obstacles;
+        std::vector<Figure> walls;
+        Figure leftWall, bottomWall, rightWall, topWall;
+        Figure healthBar;
 
         GLenum polygonMode;
 
-        float time;
-
-        
-        float px, py;
-        int nrProiectile;
-        float proiectilAngleX, proiectilAngleY;
+        int score;
+        int leftOrightSide;
+        float health;
+        float time, enemyTime;
         int showProiectil;
         float proiectilX, proiectilY;
-        float proiectilInitialX, proiectilInitialY;
-        float playerX, playerY;
-        float leftLegX, leftLegY, rightLegX, rightLegY;
-        float alfa;
         float cursorAngle;
         float Radius;
         float beta, N;
+        glm::vec3 color;
     };
 }   // namespace m1
