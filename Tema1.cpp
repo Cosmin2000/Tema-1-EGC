@@ -185,9 +185,9 @@ void Tema1::Init()
     enemies.push_back(firstEnemy);
     color = glm::vec3(19.f/255.f, 109.f/255.f, 21.f/255.f);
 
-    leftWall = Figure(-98.f, -98.f, 396.0f, 2.0f);
-    rightWall = Figure(196.f, -98.f, 396.0f, 2.0f);
-    topWall = Figure(-98.f, 296.f, 2.0f, 296.0f);
+    leftWall = Figure(-98.f, -98.f, 346.0f, 2.0f);
+    rightWall = Figure(196.f, -98.f, 346.0f, 2.0f);
+    topWall = Figure(-98.f, 246.f, 2.0f, 296.0f);
     bottomWall = Figure(-98.f, -98.f, 2.0f, 296.0f);
 
     walls.push_back(leftWall);
@@ -196,18 +196,42 @@ void Tema1::Init()
     walls.push_back(bottomWall);
    
    Figure obstacle1C = Figure(5.f, 5.f, 10.0f, 5.0f);
-   Figure obstacle2C = Figure(-40.f, 0.f, 19.0f, 3.0f);
-   Figure obstacle3C = Figure(-37.f, 14.f, 5.0f, 10.0f);
-   Figure obstacle4C = Figure(-30.f, -25.f, 15.0f, 5.0f);
-   Figure obstacle5C = Figure(-30.f, -30.f, 5.0f, 20.0f);
+   Figure obstacle2C = Figure(-40.f, 0.f, 19.0f, 10.0f);
+   Figure obstacle3C = Figure(-30.f, 14.f, 5.0f, 10.0f);
+   Figure obstacle4C = Figure(20.f, 25.f, 15.0f, 5.0f);
+   Figure obstacle5C = Figure(-70.f, -70.f, 10.0f, 20.0f);
    Figure obstacle6C = Figure(50.f, -40.f, 20.0f, 20.0f);
-    
+   Figure obstacle7C = Figure(10.f, -60.f, 10.0f, 20.0f);
+   Figure obstacle8C = Figure(80.f, 10.f, 40.0f, 10.0f);
+   Figure obstacle9C = Figure(90.f, 10.f, 10.0f, 30.0f);
+   Figure obstacle10C = Figure(140.f, -70.f, 50.0f, 10.0f);
+   Figure obstacle11C = Figure(-80.f, 50.f, 50.0f, 10.0f);
+   Figure obstacle12C = Figure(20.f, 80.f, 50.0f, 10.0f);
+   Figure obstacle13C = Figure(30.f, 80.f, 10.0f, 40.0f);
+   Figure obstacle14C = Figure(-70.f, 150.f, 10.0f, 60.0f);
+   Figure obstacle15C = Figure(60.f, 170.f, 10.0f, 70.0f);
+   Figure obstacle16C = Figure(120.f, 100.f, 70.0f, 10.0f);
+   Figure obstacle17C = Figure(-40.f, 190.f, 45.0f, 45.0f);
+   Figure obstacle18C = Figure(140.f, 200.f, 30.0f, 30.0f);
+   
     obstacles.push_back(obstacle1C);
     obstacles.push_back(obstacle2C);
     obstacles.push_back(obstacle3C);
     obstacles.push_back(obstacle4C);
     obstacles.push_back(obstacle5C);
     obstacles.push_back(obstacle6C);
+    obstacles.push_back(obstacle7C);
+    obstacles.push_back(obstacle9C);
+    obstacles.push_back(obstacle8C);
+    obstacles.push_back(obstacle10C);
+    obstacles.push_back(obstacle11C);
+    obstacles.push_back(obstacle12C);
+    obstacles.push_back(obstacle13C);
+    obstacles.push_back(obstacle14C);
+    obstacles.push_back(obstacle15C);
+    obstacles.push_back(obstacle16C);
+    obstacles.push_back(obstacle17C);
+    obstacles.push_back(obstacle18C);
 
     healthBar = Figure(50,40,8,35);
     health = 1;
@@ -215,13 +239,13 @@ void Tema1::Init()
 
 
     //Creez mapa
-    Mesh* map = Tema1::CreateRectangle("map", glm::vec3(-100, -100, 0),400.0f,300.0f, glm::vec3(128.0/255.0, 96.0/255.0, 67.0/255.0),true);
+    Mesh* map = Tema1::CreateRectangle("map", glm::vec3(-100, -100, 0),350.0f,300.0f, glm::vec3(128.0/255.0, 96.0/255.0, 67.0/255.0),true);
     AddMeshToList(map);
 
-    Mesh* healthBarVolMesh = Tema1::CreateRectangle("healthBarVol", glm::vec3(0, 0, 1), healthBar.height, healthBar.width, glm::vec3(1,0,0), true);
+    Mesh* healthBarVolMesh = Tema1::CreateRectangle("healthBarVol", glm::vec3(0, 0, 2), healthBar.height, healthBar.width, glm::vec3(1,0,0), true);
     AddMeshToList(healthBarVolMesh);
 
-    Mesh* healthBarMesh = Tema1::CreateRectangle("healthBar", glm::vec3(0, 0, 1), healthBar.height, healthBar.width, glm::vec3(1, 0, 0), false);
+    Mesh* healthBarMesh = Tema1::CreateRectangle("healthBar", glm::vec3(0, 0, 2), healthBar.height, healthBar.width, glm::vec3(1, 0, 0), false);
     AddMeshToList(healthBarMesh);
 
     //============================================= WALLS ==========================================================
@@ -265,6 +289,42 @@ void Tema1::Init()
 
     Mesh* obstacle6 = Tema1::CreateRectangle("obstacle6", glm::vec3(obstacle6C.x, obstacle6C.y, 1), obstacle6C.height, obstacle6C.width,color , true);
     AddMeshToList(obstacle6);
+
+    Mesh* obstacle7 = Tema1::CreateRectangle("obstacle7", glm::vec3(obstacle7C.x, obstacle7C.y, 1), obstacle7C.height, obstacle7C.width, color, true);
+    AddMeshToList(obstacle7);
+
+    Mesh* obstacle9 = Tema1::CreateRectangle("obstacle9", glm::vec3(obstacle9C.x, obstacle9C.y, 1), obstacle9C.height, obstacle9C.width, color, true);
+    AddMeshToList(obstacle9);
+
+    Mesh* obstacle8 = Tema1::CreateRectangle("obstacle8", glm::vec3(obstacle8C.x, obstacle8C.y, 1), obstacle8C.height, obstacle8C.width, color, true);
+    AddMeshToList(obstacle8);
+
+    Mesh* obstacle10 = Tema1::CreateRectangle("obstacle10", glm::vec3(obstacle10C.x, obstacle10C.y, 1), obstacle10C.height, obstacle10C.width, color, true);
+    AddMeshToList(obstacle10);
+
+    Mesh* obstacle11 = Tema1::CreateRectangle("obstacle11", glm::vec3(obstacle11C.x , obstacle11C.y, 1), obstacle11C.height, obstacle11C.width, color, true);
+    AddMeshToList(obstacle11);
+
+    Mesh* obstacle12 = Tema1::CreateRectangle("obstacle12", glm::vec3(obstacle12C.x, obstacle12C.y, 1), obstacle12C.height, obstacle12C.width, color, true);
+    AddMeshToList(obstacle12);
+
+    Mesh* obstacle13 = Tema1::CreateRectangle("obstacle13", glm::vec3(obstacle13C.x, obstacle13C.y, 1), obstacle13C.height, obstacle13C.width, color, true);
+    AddMeshToList(obstacle13);
+
+    Mesh* obstacle14 = Tema1::CreateRectangle("obstacle14", glm::vec3(obstacle14C.x, obstacle14C.y, 1), obstacle14C.height, obstacle14C.width, color, true);
+    AddMeshToList(obstacle14);
+
+    Mesh* obstacle16 = Tema1::CreateRectangle("obstacle16", glm::vec3(obstacle16C.x, obstacle16C.y, 1), obstacle16C.height, obstacle16C.width, color, true);
+    AddMeshToList(obstacle16);
+
+    Mesh* obstacle15 = Tema1::CreateRectangle("obstacle15", glm::vec3(obstacle15C.x, obstacle15C.y, 1), obstacle15C.height, obstacle15C.width, color, true);
+    AddMeshToList(obstacle15);
+
+    Mesh* obstacle17 = Tema1::CreateRectangle("obstacle17", glm::vec3(obstacle17C.x, obstacle17C.y, 1), obstacle17C.height, obstacle17C.width, color, true);
+    AddMeshToList(obstacle17);
+
+    Mesh* obstacle18 = Tema1::CreateRectangle("obstacle18", glm::vec3(obstacle18C.x, obstacle18C.y, 1), obstacle18C.height, obstacle18C.width, color, true);
+    AddMeshToList(obstacle18);
     // ================================= PROIECTIL====================================================
     Mesh* proiectil = Tema1::CreateRectangle("proiectil", glm::vec3(player.x - PROIECTIL_LEN/2, player.y - PROIECTIL_LEN/2, 1), PROIECTIL_LEN, PROIECTIL_LEN, glm::vec3(0, 0 , 0), true);
     AddMeshToList(proiectil);
@@ -314,6 +374,7 @@ void Tema1::DrawBullets(glm::mat3 visMatrix, float deltaTimeSeconds) {
                 Figure fig2 = Figure(enemies[j].x, enemies[j].y, ENEMY_LEN, ENEMY_LEN);
                 if (intersectRectRect(fig, fig2)) {
                     score++;
+                    cout << "SCORE : " << score << endl;
                     proiectile.erase(proiectile.begin() + i);
                     enemies.erase(enemies.begin() + j);
                     checkDist = false;
@@ -409,9 +470,9 @@ bool Tema1::circleRect(Tema1::Coordonate circle, float radius,Tema1::Figure rect
 
 void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
 {
-    
-    
-    modelMatrix = visMatrix ;
+
+
+    modelMatrix = visMatrix;
     RenderMesh2D(meshes["map"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = visMatrix;
@@ -428,7 +489,7 @@ void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
 
     // ===================== PLAYER ========================
 
-    modelMatrix = visMatrix * transform2D::Translate(player.x ,player.y);
+    modelMatrix = visMatrix * transform2D::Translate(player.x, player.y);
     RenderMesh2D(meshes["circle"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = visMatrix * transform2D::Translate(player.x, player.y);
@@ -459,41 +520,64 @@ void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
     modelMatrix = visMatrix;
     RenderMesh2D(meshes["obstacle6"], shaders["VertexColor"], modelMatrix);
 
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle7"], shaders["VertexColor"], modelMatrix);
+
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle8"], shaders["VertexColor"], modelMatrix);
+
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle9"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle10"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle11"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle12"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle13"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle14"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle15"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle16"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle17"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    RenderMesh2D(meshes["obstacle18"], shaders["VertexColor"], modelMatrix);
+
     //===================================== ENEMY =================================
-    
+
     for (int i = 0; i < enemies.size(); i++) {
         modelMatrix = visMatrix;
-        
+
         enemies[i].angle = atan2(player.y - enemies[i].y, player.x - enemies[i].x);
-        
+
         enemies[i].x += enemies[i].speed * deltaTimeSeconds * cos(enemies[i].angle);
 
-       
-       
-            enemies[i].y += enemies[i].speed * deltaTimeSeconds * sin(enemies[i].angle);
 
-        
 
-        
+        enemies[i].y += enemies[i].speed * deltaTimeSeconds * sin(enemies[i].angle);
 
-        // rotatia
-        /*modelMatrix *= transform2D::Translate(-enemies[i].x, -enemies[i].y);
-        modelMatrix *= transform2D::Rotate(enemies[i].angle);
-        modelMatrix *= transform2D::Translate(enemies[i].x, enemies[i].y);*/
-
-        //modelMatrix *= transform2D::Rotate(enemies[i].angle);
-        
-       /* modelMatrix *= transform2D::Translate(enemies[i].x + ENEMY_LEN / 2, enemies[i].y + ENEMY_LEN / 2);
-        modelMatrix *= transform2D::Rotate(enemies[i].angle);
-        modelMatrix *= transform2D::Translate( -(enemies[i].x + ENEMY_LEN / 2), -(enemies[i].y + ENEMY_LEN / 2));*/
-
-       
+        // ROTATIA
         modelMatrix *= transform2D::Translate(enemies[i].x, enemies[i].y);
-        modelMatrix *= transform2D::Translate( ENEMY_LEN / 2, ENEMY_LEN / 2);
-        modelMatrix *= transform2D::Rotate(enemies[i].angle - M_PI/2 );
-        modelMatrix *= transform2D::Translate( - ENEMY_LEN / 2, - ENEMY_LEN / 2);
-        
-       // modelMatrix *= transform2D::Rotate(enemies[i].angle);
+        modelMatrix *= transform2D::Translate(ENEMY_LEN / 2, ENEMY_LEN / 2);
+        modelMatrix *= transform2D::Rotate(enemies[i].angle - M_PI / 2);
+        modelMatrix *= transform2D::Translate(-ENEMY_LEN / 2, -ENEMY_LEN / 2);
+
+        // modelMatrix *= transform2D::Rotate(enemies[i].angle);
         RenderMesh2D(meshes["enemy"], shaders["VertexColor"], modelMatrix);
 
         RenderMesh2D(meshes["enemyLeft"], shaders["VertexColor"], modelMatrix);
@@ -502,7 +586,6 @@ void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
 
         Figure enemyFig = Tema1::Figure(enemies[i].x, enemies[i].y, ENEMY_LEN, ENEMY_LEN);
         if (intersect(player, Radius, enemyFig)) {
-            score--;
             health -= 0.1;
             enemies.erase(enemies.begin() + i);
         }
@@ -519,26 +602,28 @@ void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
 
 
     //=========================== SPAWNARE ENEMY LA 3 SEC=======================================
-    if (Engine::GetElapsedTime() - enemyTime >= 3) 
+    if (Engine::GetElapsedTime() - enemyTime >= 3)
     {
-        float x, y;
+        float x = 0, y = 0;
         float angle = atan2(viewSpace.height / 2 - player.y, player.x - viewSpace.width / 2);
-        if (leftOrightSide) {
-            x = player.x +  15 + fmod((float(rand())), 30.f);
+        float xRand = fmod((float(rand())), 30.f);
+        float yRand = fmod((float(rand())), 30.f);
+        if ((leftOrightSide && player.x - 20.f - xRand > -98.f) || (!leftOrightSide && player.x + 20.f + xRand > 196.f )) {
+            x = player.x - 20.f - xRand;
             leftOrightSide = 0;
         }
-        else {
-            x = player.x - 15 - fmod((float(rand())), 30.f);
-            leftOrightSide = 1;
-        }
+        else if ((!leftOrightSide && player.x - 20.f - xRand < 196.f) || (leftOrightSide && player.x - 20.f - xRand < -98.f)) {
 
-        if (leftOrightSide) {
-            y = player.y + 15 + fmod((float(rand())), 30.f);
-            leftOrightSide = 0;
-        }
-        else {
-            y = player.y - 15 - fmod((float(rand())), 30.f);
+            x = player.x + 20.f + xRand;
             leftOrightSide = 1;
+        }
+        
+        if ((leftOrightSide && player.y + 15.f + xRand < 244.f) || (!leftOrightSide &&  player.y  - 15 - yRand < -96.f)) {
+            y = player.y + 15 + yRand;
+           
+        }
+        else if ((!leftOrightSide && player.x - 15.f - xRand > -96.f) || (leftOrightSide && player.y + 15 + yRand > 244.f)) {
+            y = player.y - 15 - yRand;
         }
         Enemy enemy = Tema1::Enemy(x, y, 15.f + fmod((float(rand())), 10.f), angle);
         enemies.push_back(enemy);
@@ -620,7 +705,7 @@ void Tema1::Update(float deltaTimeSeconds)
     
     DrawBullets(visMatrix, deltaTimeSeconds);
     
-   
+    
 
 
     
