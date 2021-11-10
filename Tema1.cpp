@@ -175,14 +175,15 @@ void Tema1::Init()
     showProiectil = 0;
     time = Engine::GetElapsedTime();
     enemyTime = Engine::GetElapsedTime();
+    pickUpTime = Engine::GetElapsedTime();
     player = Coordonate(0.f, 0.f);
     score = 0;
     leftOrightSide = 0;
     glm::vec3 wallColor = glm::vec3(84.f/255.f, 89.f/255.f, 83.f/255.f);
 
     
-    Enemy firstEnemy = Tema1::Enemy(player.x + 25, player.y - 15, 15, M_PI / 4);
-    enemies.push_back(firstEnemy);
+    //Enemy firstEnemy = Tema1::Enemy(player.x + 25, player.y - 15, 15, M_PI / 4);
+    //enemies.push_back(firstEnemy);
     color = glm::vec3(19.f/255.f, 109.f/255.f, 21.f/255.f);
 
     leftWall = Figure(-98.f, -98.f, 346.0f, 2.0f);
@@ -235,6 +236,7 @@ void Tema1::Init()
 
     healthBar = Figure(50,40,8,35);
     health = 1;
+    
    
 
 
@@ -261,6 +263,9 @@ void Tema1::Init()
 
     Mesh* topWallMesh = Tema1::CreateRectangle("topWall", glm::vec3(topWall.x, topWall.y, 1), topWall.height, topWall.width, wallColor, true);
     AddMeshToList(topWallMesh);
+
+    Mesh* WallMesh = Tema1::CreateRectangle("Wall", glm::vec3(bottomWall.x, bottomWall.y, 1), bottomWall.height, bottomWall.width, wallColor, true);
+    AddMeshToList(WallMesh);
 
     // ============================================= ENEMY -============================================
     Mesh* enemyMesh = Tema1::CreateRectangle("enemy", glm::vec3( 0, 0, 1.2), ENEMY_LEN, ENEMY_LEN, glm::vec3(150.f/255.f, 58.f/255.f, 39.f/255.f), true);
@@ -336,6 +341,10 @@ void Tema1::Init()
 
     CreateCircle("legRight", Radius/4, 100, glm::vec3(0, 0, 0),2.0);
 
+   
+    //================== PICK-UP
+    Mesh* pickUpMesh = Tema1::CreateRectangle("pickUp", glm::vec3(2, -10, 0.8), PICK_UP_LEN, PICK_UP_LEN, glm::vec3(1, 1, 1), true);
+    AddMeshToList(pickUpMesh);
 
 
     logicSpace.x = -50;       // logic x
@@ -400,6 +409,14 @@ void Tema1::DrawBullets(glm::mat3 visMatrix, float deltaTimeSeconds) {
         }
         
     }
+    // ================================== HEALTHBAR ==================================
+    modelMatrix = visMatrix;
+    modelMatrix *= transform2D::Translate(healthBar.x, healthBar.y);
+    RenderMesh2D(meshes["healthBar"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix *= transform2D::Scale(health, 1);
+    RenderMesh2D(meshes["healthBarVol"], shaders["VertexColor"], modelMatrix);
+
 }
 
 
@@ -468,13 +485,150 @@ bool Tema1::circleRect(Tema1::Coordonate circle, float radius,Tema1::Figure rect
     
 }
 
-void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
+void Tema1::DrawElements(glm::mat3 visMatrix, float deltaTimeSeconds) {
+    //===================================== ENEMY =================================
+
+    for (int i = 0; i < enemies.size(); i++) {
+        modelMatrix = visMatrix;
+
+        enemies[i].angle = atan2(player.y - enemies[i].y, player.x - enemies[i].x);
+
+        enemies[i].x += enemies[i].speed * deltaTimeSeconds * cos(enemies[i].angle);
+
+
+
+        enemies[i].y += enemies[i].speed * deltaTimeSeconds * sin(enemies[i].angle);
+
+        // ROTATIA
+        modelMatrix *= transform2D::Translate(enemies[i].x, enemies[i].y);
+        modelMatrix *= transform2D::Translate(ENEMY_LEN / 2, ENEMY_LEN / 2);
+        modelMatrix *= transform2D::Rotate(enemies[i].angle - M_PI / 2);
+        modelMatrix *= transform2D::Translate(-ENEMY_LEN / 2, -ENEMY_LEN / 2);
+
+        // modelMatrix *= transform2D::Rotate(enemies[i].angle);
+        RenderMesh2D(meshes["enemy"], shaders["VertexColor"], modelMatrix);
+
+        RenderMesh2D(meshes["enemyLeft"], shaders["VertexColor"], modelMatrix);
+
+        RenderMesh2D(meshes["enemyRight"], shaders["VertexColor"], modelMatrix);
+
+        Figure enemyFig = Tema1::Figure(enemies[i].x, enemies[i].y, ENEMY_LEN, ENEMY_LEN);
+        if (intersect(player, Radius, enemyFig)) {
+            health -= 0.1;
+            enemies.erase(enemies.begin() + i);
+            if (health <= 0.0) {
+                window->Close();
+            }
+        }
+
+        for (int j = 0; j < walls.size(); j++) {
+            if (intersectRectRect(enemyFig, walls[j])) {
+                enemies.erase(enemies.begin() + i);
+                break;
+
+            }
+        }
+    }
+
+    //=========================== SPAWNARE ENEMY LA 3 SEC=======================================
+    if (Engine::GetElapsedTime() - enemyTime >= 3)
+    {
+        float x = 0, y = 0;
+        float angle = atan2(viewSpace.height / 2 - player.y, player.x - viewSpace.width / 2);
+        float xRand = fmod((float(rand())), 30.f);
+        float yRand = fmod((float(rand())), 30.f);
+        if ((leftOrightSide && player.x - 20.f - xRand > -92.f) || (!leftOrightSide && player.x + 20.f + xRand > 192.f)) {
+            x = player.x - 20.f - xRand;
+            leftOrightSide = 0;
+        }
+        else if ((!leftOrightSide && player.x - 20.f - xRand < 192.f) || (leftOrightSide && player.x - 20.f - xRand < -92.f)) {
+
+            x = player.x + 20.f + xRand;
+            leftOrightSide = 1;
+        }
+
+        if ((leftOrightSide && player.y + 15.f + xRand < 242.f) || (!leftOrightSide && player.y - 15 - yRand < -92.f)) {
+            y = player.y + 15 + yRand;
+
+        }
+        else if ((!leftOrightSide && player.x - 15.f - xRand > -92.f) || (leftOrightSide && player.y + 15 + yRand > 242.f)) {
+            y = player.y - 15 - yRand;
+        }
+        Enemy enemy = Tema1::Enemy(x, y, 15.f + fmod((float(rand())), 10.f), angle);
+        enemies.push_back(enemy);
+        enemyTime = Engine::GetElapsedTime();
+    }
+
+  
+
+    //================================== PICK-UP ===================================
+    for (int i = 0; i < healthPickups.size(); i++) {
+
+        modelMatrix = visMatrix;
+        modelMatrix *= transform2D::Translate(healthPickups[i].x, healthPickups[i].y);
+        RenderMesh2D(meshes["pickUp"], shaders["VertexColor"], modelMatrix);
+        Figure pickFig = Tema1::Figure(healthPickups[i].x, healthPickups[i].y, PICK_UP_LEN, PICK_UP_LEN);
+        if (intersect(player, Radius, pickFig)) {
+
+            healthPickups.erase(healthPickups.begin() + i);
+            if (health < 1.0) {
+                health += 0.1;
+            }
+
+        }
+
+    }
+
+    // ================================== GENERARE PICK UP ========================
+    if (Engine::GetElapsedTime() - pickUpTime >= 10.0) {
+        if (healthPickups.size() < 5) {
+            bool ok = false;
+            float x, y;
+            while (!ok) {
+                ok = true;
+                x = fmod(rand(), 275.f) - 90.f;
+                y = fmod(rand(), 330.f) - 84.f;
+
+
+                for (int j = 0; j < obstacles.size(); j++) {
+                    if (((x >= obstacles[j].x - 2.f && x <= obstacles[j].x + obstacles[j].width + 2.f) || (x + PICK_UP_LEN >= obstacles[j].x - 2.f && x + PICK_UP_LEN <= obstacles[j].x + obstacles[j].width + 2.f))
+                        && ((y >= obstacles[j].y - 2.f && y <= obstacles[j].y + obstacles[j].height + 2.f) || (y + PICK_UP_LEN >= obstacles[j].y - 2.f && y + PICK_UP_LEN <= obstacles[j].y + obstacles[j].height + 2.f))) {
+                        ok = false;
+                        break;
+                    }
+
+                }
+            }
+
+            Coordonate pick = Tema1::Coordonate(x, y);
+            healthPickups.push_back(pick);
+            pickUpTime = Engine::GetElapsedTime();
+        }
+        
+    }
+}
+
+void Tema1::DrawScene(glm::mat3 visMatrix)
 {
 
 
     modelMatrix = visMatrix;
     RenderMesh2D(meshes["map"], shaders["VertexColor"], modelMatrix);
 
+    //============================== WALLS =============================
+
+   /* modelMatrix = visMatrix;
+    RenderMesh2D(meshes["Wall"], shaders["VertexColor"], modelMatrix);
+
+    modelMatrix = visMatrix;
+    
+    modelMatrix *= transform2D::Rotate( 3*M_PI/2);
+    modelMatrix *= transform2D::Scale(leftWall.height / bottomWall.width, 1);
+    modelMatrix *= transform2D::Translate(-115 , 1);
+   
+    
+ 
+    RenderMesh2D(meshes["Wall"], shaders["VertexColor"], modelMatrix);*/
     modelMatrix = visMatrix;
     RenderMesh2D(meshes["leftWall"], shaders["VertexColor"], modelMatrix);
 
@@ -558,85 +712,6 @@ void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds)
     modelMatrix = visMatrix;
     RenderMesh2D(meshes["obstacle18"], shaders["VertexColor"], modelMatrix);
 
-    //===================================== ENEMY =================================
-
-    for (int i = 0; i < enemies.size(); i++) {
-        modelMatrix = visMatrix;
-
-        enemies[i].angle = atan2(player.y - enemies[i].y, player.x - enemies[i].x);
-
-        enemies[i].x += enemies[i].speed * deltaTimeSeconds * cos(enemies[i].angle);
-
-
-
-        enemies[i].y += enemies[i].speed * deltaTimeSeconds * sin(enemies[i].angle);
-
-        // ROTATIA
-        modelMatrix *= transform2D::Translate(enemies[i].x, enemies[i].y);
-        modelMatrix *= transform2D::Translate(ENEMY_LEN / 2, ENEMY_LEN / 2);
-        modelMatrix *= transform2D::Rotate(enemies[i].angle - M_PI / 2);
-        modelMatrix *= transform2D::Translate(-ENEMY_LEN / 2, -ENEMY_LEN / 2);
-
-        // modelMatrix *= transform2D::Rotate(enemies[i].angle);
-        RenderMesh2D(meshes["enemy"], shaders["VertexColor"], modelMatrix);
-
-        RenderMesh2D(meshes["enemyLeft"], shaders["VertexColor"], modelMatrix);
-
-        RenderMesh2D(meshes["enemyRight"], shaders["VertexColor"], modelMatrix);
-
-        Figure enemyFig = Tema1::Figure(enemies[i].x, enemies[i].y, ENEMY_LEN, ENEMY_LEN);
-        if (intersect(player, Radius, enemyFig)) {
-            health -= 0.1;
-            enemies.erase(enemies.begin() + i);
-        }
-
-        for (int j = 0; j < walls.size(); j++) {
-            if (intersectRectRect(enemyFig, walls[j])) {
-                enemies.erase(enemies.begin() + i);
-                break;
-
-            }
-        }
-    }
-
-
-
-    //=========================== SPAWNARE ENEMY LA 3 SEC=======================================
-    if (Engine::GetElapsedTime() - enemyTime >= 3)
-    {
-        float x = 0, y = 0;
-        float angle = atan2(viewSpace.height / 2 - player.y, player.x - viewSpace.width / 2);
-        float xRand = fmod((float(rand())), 30.f);
-        float yRand = fmod((float(rand())), 30.f);
-        if ((leftOrightSide && player.x - 20.f - xRand > -98.f) || (!leftOrightSide && player.x + 20.f + xRand > 196.f )) {
-            x = player.x - 20.f - xRand;
-            leftOrightSide = 0;
-        }
-        else if ((!leftOrightSide && player.x - 20.f - xRand < 196.f) || (leftOrightSide && player.x - 20.f - xRand < -98.f)) {
-
-            x = player.x + 20.f + xRand;
-            leftOrightSide = 1;
-        }
-        
-        if ((leftOrightSide && player.y + 15.f + xRand < 244.f) || (!leftOrightSide &&  player.y  - 15 - yRand < -96.f)) {
-            y = player.y + 15 + yRand;
-           
-        }
-        else if ((!leftOrightSide && player.x - 15.f - xRand > -96.f) || (leftOrightSide && player.y + 15 + yRand > 244.f)) {
-            y = player.y - 15 - yRand;
-        }
-        Enemy enemy = Tema1::Enemy(x, y, 15.f + fmod((float(rand())), 10.f), angle);
-        enemies.push_back(enemy);
-        enemyTime = Engine::GetElapsedTime();
-    }
-
-    // ================================== HEALTHBAR ==================================
-    modelMatrix = visMatrix;
-    modelMatrix *= transform2D::Translate(healthBar.x, healthBar.y);
-    RenderMesh2D(meshes["healthBar"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix *= transform2D::Scale(health, 1);
-    RenderMesh2D(meshes["healthBarVol"], shaders["VertexColor"], modelMatrix);
     
 }
 
@@ -701,12 +776,23 @@ void Tema1::Update(float deltaTimeSeconds)
     visMatrix *= VisualizationTransf2DUnif(logicSpace, viewSpace);
 
 
-    DrawScene(visMatrix, deltaTimeSeconds);
+    DrawScene(visMatrix);
+
+    DrawElements(visMatrix, deltaTimeSeconds);
     
     DrawBullets(visMatrix, deltaTimeSeconds);
     
-    
 
+    viewSpace1 = ViewportSpace(0, 0, resolution.x /5, resolution.y/4);
+    SetViewportArea(viewSpace1, glm::vec3(0), true);
+    logicSpace1 = LogicSpace(-98, -98, 300, 350);
+    // Compute uniform 2D visualization matrix
+    visMatrix = glm::mat3(1);
+   // visMatrix *= transform2D::Translate(10, 0);
+    visMatrix *= VisualizationTransf2DUnif(logicSpace1, viewSpace1);
+    DrawScene(visMatrix);
+    DrawElements(visMatrix, deltaTimeSeconds);
+   // DrawBullets(visMatrix, deltaTimeSeconds);
 
     
 

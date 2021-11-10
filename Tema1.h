@@ -97,7 +97,8 @@ namespace m1
         bool Tema1::intersect(Tema1::Coordonate circle, float radius, Tema1::Figure rect);
         bool Tema1::circleRect(Tema1::Coordonate circle, float radius, Tema1::Figure rect, int key);
         void Tema1::CreateCircle(const char* name,int R, int nr_sections,glm::vec3 color, int Zoffset);
-        void Tema1::DrawScene(glm::mat3 visMatrix, float deltaTimeSeconds);
+        void Tema1::DrawScene(glm::mat3 visMatrix);
+        void Tema1::DrawElements(glm::mat3 visMatrix, float deltaTimeSeconds);
         void Tema1::DrawBullets(glm::mat3 visMatrix, float deltaTimeSeconds);
         Mesh* CreateRectangle(const std::string& name,glm::vec3 leftBottomCorner,float height,float width, glm::vec3 color, bool fill);
         void CreateMesh(const char* name, const std::vector<VertexFormat>& vertices, const std::vector<unsigned int>& indices);
@@ -119,8 +120,8 @@ namespace m1
 
     protected:
      
-        ViewportSpace viewSpace;
-        LogicSpace logicSpace;
+        ViewportSpace viewSpace, viewSpace1;
+        LogicSpace logicSpace, logicSpace1;
         std::vector<Proiectil> proiectile;
         glm::mat3 modelMatrix, visMatrix;
         Coordonate  player;
@@ -129,6 +130,7 @@ namespace m1
         std::vector<Enemy> enemies;
         std::vector<Figure> obstacles;
         std::vector<Figure> walls;
+        std::vector<Coordonate> healthPickups;
         Figure leftWall, bottomWall, rightWall, topWall;
         Figure healthBar;
 
@@ -137,7 +139,7 @@ namespace m1
         int score;
         int leftOrightSide;
         float health;
-        float time, enemyTime;
+        float time, enemyTime, pickUpTime;
         int showProiectil;
         float proiectilX, proiectilY;
         float cursorAngle;
