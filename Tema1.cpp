@@ -4,7 +4,7 @@
 #include <iostream>
 #include "lab_m1/Tema1/transform2D.h"
 
-//using namespace objects2D;
+
 using namespace std;
 using namespace m1;
 
@@ -14,15 +14,6 @@ using namespace m1;
  *  and the order in which they are called, see `world.cpp`.
  */
 
-
-// =========== Coliziuni ==
-//jucator - inamic(5p) V
-//jucator - perete harta(5p) V
-//jucator - obstacol(2.5p) V
-//proiectil - inamic(5p) V
-//proiectil - perete harta(2.5p) V
-//proiectil - obstacol(2.5p) V
-//inamic - perete harta(2.5p) V
 
 Tema1::Tema1()
 {
@@ -58,7 +49,7 @@ Mesh* Tema1::CreateRectangle(
         rectangle->SetDrawMode(GL_LINE_LOOP);
     }
     else {
-        // Draw 2 triangles. Add the remaining 2 indices
+        
         indices.push_back(0);
         indices.push_back(2);
     }
@@ -181,9 +172,6 @@ void Tema1::Init()
     leftOrightSide = 0;
     glm::vec3 wallColor = glm::vec3(84.f/255.f, 89.f/255.f, 83.f/255.f);
 
-    
-    //Enemy firstEnemy = Tema1::Enemy(player.x + 25, player.y - 15, 15, M_PI / 4);
-    //enemies.push_back(firstEnemy);
     color = glm::vec3(19.f/255.f, 109.f/255.f, 21.f/255.f);
 
     leftWall = Figure(-98.f, -98.f, 346.0f, 2.0f);
@@ -428,12 +416,11 @@ bool Tema1::intersectRectRect(Tema1::Figure rect1, Tema1::Figure rect2) {
 
 
 bool Tema1::intersect(Tema1::Coordonate circle, float radius, Tema1::Figure rect) {
-    // get box closest point to sphere center by clamping
+    
     float x = max(rect.x, min(circle.x, rect.x + rect.width));
     float y = max(rect.y, min(circle.y, rect.y + rect.height));
   
 
-    // this is the same as isPointInsideSphere
     float distance = sqrt((x - circle.x) * (x - circle.x) +
         (y - circle.y) * (y - circle.y));
 
@@ -442,7 +429,7 @@ bool Tema1::intersect(Tema1::Coordonate circle, float radius, Tema1::Figure rect
 
 bool Tema1::circleRect(Tema1::Coordonate circle, float radius,Tema1::Figure rect, int key) {
 
-    // temporary variables to set edges for testing
+    
     float distance = 0;
     float testX = circle.x;
     float testY = circle.y;
@@ -480,7 +467,6 @@ bool Tema1::circleRect(Tema1::Coordonate circle, float radius,Tema1::Figure rect
         
     }
     return false;
-   // 
     // if the distance is less than the radius, collision!
     
 }
@@ -505,7 +491,7 @@ void Tema1::DrawElements(glm::mat3 visMatrix, float deltaTimeSeconds) {
         modelMatrix *= transform2D::Rotate(enemies[i].angle - M_PI / 2);
         modelMatrix *= transform2D::Translate(-ENEMY_LEN / 2, -ENEMY_LEN / 2);
 
-        // modelMatrix *= transform2D::Rotate(enemies[i].angle);
+  
         RenderMesh2D(meshes["enemy"], shaders["VertexColor"], modelMatrix);
 
         RenderMesh2D(meshes["enemyLeft"], shaders["VertexColor"], modelMatrix);
@@ -517,6 +503,7 @@ void Tema1::DrawElements(glm::mat3 visMatrix, float deltaTimeSeconds) {
             health -= 0.1;
             enemies.erase(enemies.begin() + i);
             if (health <= 0.0) {
+                cout << "                 YOU LOST!                     " << endl;
                 window->Close();
             }
         }
@@ -581,7 +568,7 @@ void Tema1::DrawElements(glm::mat3 visMatrix, float deltaTimeSeconds) {
 
     // ================================== GENERARE PICK UP ========================
     if (Engine::GetElapsedTime() - pickUpTime >= 10.0) {
-        if (healthPickups.size() < 5) {
+        if (healthPickups.size() < 3) {
             bool ok = false;
             float x, y;
             while (!ok) {
@@ -749,6 +736,24 @@ glm::mat3 Tema1::VisualizationTransf2DUnif(const LogicSpace& logicSpace, const V
         0.0f, 0.0f, 1.0f));
 }
 
+glm::mat3 Tema1::VisualizationTransf2DUnif1(const LogicSpace& logicSpace, const ViewportSpace& viewSpace)
+{
+    float sx, sy, tx, ty, smin;
+    sx = viewSpace.width /(2.5 * logicSpace.width);
+    sy = viewSpace.height /(3 * logicSpace.height);
+    if (sx < sy)
+        smin = sx;
+    else
+        smin = sy;
+    tx = viewSpace.x - smin * logicSpace.x + (viewSpace.width - smin * logicSpace.width) / 2;
+    ty = viewSpace.y - smin * logicSpace.y + (viewSpace.height - smin * logicSpace.height) / 2;
+
+    return glm::transpose(glm::mat3(
+        smin, 0.0f, tx,
+        0.0f, smin, ty,
+        0.0f, 0.0f, 1.0f));
+}
+
 
 void Tema1::FrameStart()
 {
@@ -782,19 +787,30 @@ void Tema1::Update(float deltaTimeSeconds)
     
     DrawBullets(visMatrix, deltaTimeSeconds);
     
+    //============ MINIMAP VARIANTA 1 =====================
+   // viewSpace1 = ViewportSpace(0, 0, resolution.x /5, resolution.y/4);
+   // SetViewportArea(viewSpace1, glm::vec3(0), true);
+   // //logicSpace1 = LogicSpace(-98, -98, 300, 350);
+   // // Compute uniform 2D visualization matrix
+   // visMatrix = glm::mat3(1);
+   //// visMatrix *= transform2D::Translate(10, 0);
+   // visMatrix *= VisualizationTransf2DUnif1(logicSpace, viewSpace1);
+   // DrawScene(visMatrix);
+   // DrawElements(visMatrix, deltaTimeSeconds);
+   //// DrawBullets(visMatrix, deltaTimeSeconds);
 
-    viewSpace1 = ViewportSpace(0, 0, resolution.x /5, resolution.y/4);
+    //========================= MINIMAP VARIANTA 2 ===========================
+
+    viewSpace1 = ViewportSpace(0, 0, resolution.x / 5, resolution.y / 4);
     SetViewportArea(viewSpace1, glm::vec3(0), true);
     logicSpace1 = LogicSpace(-98, -98, 300, 350);
     // Compute uniform 2D visualization matrix
     visMatrix = glm::mat3(1);
-   // visMatrix *= transform2D::Translate(10, 0);
+    // visMatrix *= transform2D::Translate(10, 0);
     visMatrix *= VisualizationTransf2DUnif(logicSpace1, viewSpace1);
     DrawScene(visMatrix);
     DrawElements(visMatrix, deltaTimeSeconds);
-   // DrawBullets(visMatrix, deltaTimeSeconds);
-
-    
+    // DrawBullets(visMatrix, deltaTimeSeconds);
 
 
    

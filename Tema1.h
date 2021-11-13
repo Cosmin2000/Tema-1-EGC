@@ -1,7 +1,6 @@
 #pragma once
 
 #include "components/simple_scene.h"
-//#include "2Dobjects.h"
 #include "Constants.h"
 #include <vector>
 
@@ -32,7 +31,6 @@ namespace m1
         struct Proiectil
         {
             Proiectil (float x, float y, float angle, float initialX, float initialY)
-                //: x(x), y(y), angle(angle), initialX(initialX), initialY(initialY) {}
 
             {
                 this->x = x;
@@ -93,6 +91,7 @@ namespace m1
         };
     private:
         
+        glm::mat3 Tema1::VisualizationTransf2DUnif1(const LogicSpace& logicSpace, const ViewportSpace& viewSpace);
         bool Tema1::intersectRectRect(Tema1::Figure rect1, Tema1::Figure rect);
         bool Tema1::intersect(Tema1::Coordonate circle, float radius, Tema1::Figure rect);
         bool Tema1::circleRect(Tema1::Coordonate circle, float radius, Tema1::Figure rect, int key);
